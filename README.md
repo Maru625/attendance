@@ -1,46 +1,58 @@
-# Kada Commute System
+# Kada Commute System (카다 출퇴근 시스템)
 
-Google Sheets based attendance management system.
+구글 스프레드시트 기반의 출퇴근 관리 시스템입니다.
 
-## Setup
+## 설정 (Setup)
 
-### 1. Prerequisites
-- Python 3.11+
-- `uv` package manager
+### 1. 필수 도구 설치
 
-### 2. Installation
-Initialize the project and install dependencies:
-```bash
-uv init
-uv add gspread google-auth
+이 프로젝트는 **`uv`** 패키지 매니저를 사용합니다. `uv`는 Python 환경과 의존성을 매우 빠르게 관리해줍니다.
+
+**Windows:**
+```powershell
+powershell -c "irm https://astral.sh/uv/install.ps1 | iex"
 ```
 
-### 3. Google Sheets Configuration
-Place your service account key file as `kada-admin.json` in the project root.
-*Note: This file is ignored by git.*
+**macOS/Linux:**
+```bash
+curl -lsSf https://astral.sh/uv/install.sh | sh
+```
 
-## Git Setup
-Commands to link to the remote repository:
+### 2. 프로젝트 설정 및 의존성 설치
+`pyproject.toml` 파일에 정의된 모든 의존성을 한 번에 설치하고 가상환경을 동기화하려면 아래 명령어를 실행하세요.
 
 ```bash
-# Initialize Git
+# 프로젝트의 모든 의존성(gspread, google-auth 등)을 한번에 설치 및 동기화
+uv sync
+```
+
+### 3. 구글 스프레드시트 설정
+서비스 계정 키 파일을 프로젝트 루트에 `kada-admin.json` 이름으로 위치시키세요.
+*참고: 이 파일은 보안상 git에 포함되지 않습니다.*
+
+## Git 설정 (Git Setup)
+원격 저장소와 연동하는 방법입니다:
+
+```bash
+# Git 초기화
 git init
 git add .
 git commit -m "Initial commit"
 
-# Rename branch to main
+# 브랜치명 변경
 git branch -M main
 
-# Add Remote
+# 원격 저장소 추가
 git remote add origin https://github.com/Maru625/attendance.git
 
-# Push
+# 푸시 (충돌 시 먼저 pull 필요)
+git pull origin main --allow-unrelated-histories
 git push -u origin main
 ```
 
-## Usage
+## 사용법 (Usage)
 
-Run the application:
+애플리케이션 실행:
 ```bash
 uv run main.py
 ```
