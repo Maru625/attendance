@@ -1,0 +1,16 @@
+Sheet Names: ['Employees', 'Attendance', '2025_48', '2025_47', '2025_49']
+
+--- Sheet: Employees ---
+Columns: ['id', 'name', 'location', 'created_at', 'Hello Gemini']
+
+--- Sheet: Attendance ---
+Columns: ['date', 'name', 'location', 'checkin_time', 'checkout_time', 'employee_id', 'reason']
+
+--- Sheet: 2025_48 ---
+Columns: ['date', 'name', 'location', 'checkin_time', 'checkout_time', 'employee_id', 'reason']
+
+--- Sheet: 2025_47 ---
+Columns: ['date', 'name', 'location', 'checkin_time', 'checkout_time', 'employee_id', 'reason']
+
+--- Sheet: 2025_49 ---
+Columns: ['date', 'name', 'location', 'checkin_time', 'checkout_time', 'employee_id', 'reason']

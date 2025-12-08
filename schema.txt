@@ -1,0 +1,2 @@
+Columns: ['id', 'name', 'location', 'created_at', 'Hello Gemini']
+First row: ['E9D84A06597', '김민지', '신공 506', Timestamp('2025-08-14 15:39:28'), nan]

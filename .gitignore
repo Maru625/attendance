@@ -1,0 +1,21 @@
+# Secrets
+kada-admin.json
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual Environment (uv)
+.venv/
+venv/
+env/
+
+# IDE
+.vscode/
+.idea/
+
+# Distribution / Build
+dist/
+build/
+*.egg-info/
