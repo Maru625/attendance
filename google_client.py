@@ -317,6 +317,68 @@ def delete_record(spreadsheet, employee_id, date_str):
         print(f"삭제 중 오류 발생: {e}")
         return False
 
+def update_record(spreadsheet, employee_id, date_str, checkin=None, checkout=None):
+    """Updates an attendance record for the employee on a specific date."""
+    sheet_name = get_sheet_name_from_date_str(date_str)
+    if not sheet_name:
+        print("잘못된 날짜 형식입니다. (YYYY-MM-DD)")
+        return False
+
+    sheet = get_worksheet(spreadsheet, sheet_name)
+    if not sheet:
+        # print(f"해당 날짜({date_str})가 포함된 주차의 기록이 없습니다.")
+        # Updating might fail if the sheet doesn't exist, which implies no record.
+        return False
+        
+    emp_id_str = str(employee_id)
+    
+    try:
+        rows = sheet.get_all_values()
+        if not rows:
+            return False
+            
+        headers = rows[0]
+        try:
+            date_idx = headers.index('date')
+            id_idx = headers.index('employee_id')
+            checkin_idx = headers.index('checkin_time')
+            checkout_idx = headers.index('checkout_time')
+        except ValueError:
+            print("필수 컬럼이 누락되었습니다.")
+            return False
+            
+        target_row_idx = -1
+        for i, row in enumerate(rows[1:], start=2):
+             if len(row) <= max(date_idx, id_idx): continue
+             
+             if row[date_idx] == date_str and str(row[id_idx]) == emp_id_str:
+                 target_row_idx = i
+                 break
+        
+        if target_row_idx == -1:
+            print(f"{date_str}에 해당 직원의 기록을 찾을 수 없습니다.")
+            return False
+
+        # Helper to get cell address
+        def get_cell_address(row_idx, col_idx):
+            return f"{chr(64 + col_idx + 1)}{row_idx}"
+
+        if checkin is not None:
+            cell = get_cell_address(target_row_idx, checkin_idx)
+            sheet.update(cell, [[checkin]], value_input_option='USER_ENTERED')
+            print(f"출근 시간이 '{checkin}'(으)로 수정되었습니다.")
+
+        if checkout is not None:
+            cell = get_cell_address(target_row_idx, checkout_idx)
+            sheet.update(cell, [[checkout]], value_input_option='USER_ENTERED')
+            print(f"퇴근 시간이 '{checkout}'(으)로 수정되었습니다.")
+            
+        return True
+
+    except Exception as e:
+        print(f"수정 중 오류 발생: {e}")
+        return False
+
 if __name__ == "__main__":
     spreadsheet = connect_to_spreadsheet()
     

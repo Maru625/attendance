@@ -40,7 +40,7 @@ def main():
         
         # 4. Ask Check-in/Check-out
         while True:
-            action = input("\n원하시는 작업을 선택하세요 (1: 출근, 2: 퇴근, 3: 기록 삭제, q: 종료): ").strip()
+            action = input("\n원하시는 작업을 선택하세요 (1: 출근, 2: 퇴근, 3: 기록 삭제, 4: 기록 수정, q: 종료): ").strip()
             
             if action == '1':
                 print("\n[시간 입력 안내]")
@@ -64,6 +64,28 @@ def main():
                     print("날짜가 입력되지 않았습니다.")
                 else:
                     google_client.delete_record(spreadsheet, employee.get('id'), date_to_delete)
+            elif action == '4':
+                date_to_edit = input("수정할 날짜를 입력하세요 (YYYY-MM-DD): ").strip()
+                if not date_to_edit:
+                    print("날짜가 입력되지 않았습니다.")
+                    continue
+                
+                print("\n[수정할 항목 선택]")
+                print("1. 출근 시간")
+                print("2. 퇴근 시간")
+                edit_type = input("선택: ").strip()
+                
+                new_time = input("새로운 시간을 입력하세요 (HH:MM:SS): ").strip()
+                if not new_time:
+                    print("시간이 입력되지 않았습니다.")
+                    continue
+
+                if edit_type == '1':
+                    google_client.update_record(spreadsheet, employee.get('id'), date_to_edit, checkin=new_time)
+                elif edit_type == '2':
+                    google_client.update_record(spreadsheet, employee.get('id'), date_to_edit, checkout=new_time)
+                else:
+                    print("잘못된 선택입니다.")
             elif action.lower() == 'q':
                 print("종료합니다.")
                 break
