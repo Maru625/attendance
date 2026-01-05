@@ -144,7 +144,12 @@ def check_in(spreadsheet, employee, specific_time=None):
         return False
 
     if specific_time:
-        checkin_time_str = specific_time
+        # If input is HH:MM (len 5), add random seconds (00-59) to make it look natural
+        if len(specific_time) == 5:
+            random_second = random.randint(0, 59)
+            checkin_time_str = f"{specific_time}:{random_second:02d}"
+        else:
+            checkin_time_str = specific_time
     else:
         # Generate random time between 09:00 and 10:00
         now = datetime.datetime.now()
@@ -215,7 +220,11 @@ def check_out(spreadsheet, employee, specific_time=None):
         return False
 
     if specific_time:
-        checkout_time_str = specific_time
+        if len(specific_time) == 5:
+             random_second = random.randint(0, 59)
+             checkout_time_str = f"{specific_time}:{random_second:02d}"
+        else:
+            checkout_time_str = specific_time
     else:
         # Generate random time 21:00 ~ 22:00
         now = datetime.datetime.now()

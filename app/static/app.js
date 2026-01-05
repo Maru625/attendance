@@ -144,7 +144,7 @@ async function handleCheckIn() {
                 name: currentUser.name,
                 location: currentUser.location,
                 employee_id: currentUser.id,
-                time: manualTime ? manualTime + ":00" : null // Append seconds
+                time: manualTime ? manualTime : null // Send HH:MM, backend adds random seconds
             })
         });
 
@@ -181,7 +181,7 @@ async function handleCheckOut() {
             body: JSON.stringify({
                 name: currentUser.name,
                 employee_id: currentUser.id,
-                time: manualTime ? manualTime + ":00" : null
+                time: manualTime ? manualTime : null
             })
         });
 
