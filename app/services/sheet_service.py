@@ -4,11 +4,12 @@ import datetime
 
 # Configuration
 SERVICE_ACCOUNT_FILE = 'kada-admin.json'
+RENDER_SECRET_PATH = '/etc/secrets/kada-admin.json' # Default path for Render Secret Files
+
 SCOPES = [
     'https://www.googleapis.com/auth/spreadsheets',
     'https://www.googleapis.com/auth/drive'
 ]
-# TODO: Replace with your actual Google Sheet name or URL
 SHEET_NAME = 'kada_attendance' 
 
 # Logging callback
@@ -23,10 +24,16 @@ def log(message):
         log_callback(message)
 
 def connect_to_spreadsheet():
-    """Connects to Google Sheets using the service account and returns the Spreadsheet object."""
+    """Connects to Google Sheets using the service account."""
     try:
+        # Check standard path then Render secret path
+        import os
+        filename = SERVICE_ACCOUNT_FILE
+        if not os.path.exists(filename) and os.path.exists(RENDER_SECRET_PATH):
+            filename = RENDER_SECRET_PATH
+
         creds = Credentials.from_service_account_file(
-            SERVICE_ACCOUNT_FILE, scopes=SCOPES)
+            filename, scopes=SCOPES)
         client = gspread.authorize(creds)
         # Open the spreadsheet
         try:
@@ -35,8 +42,7 @@ def connect_to_spreadsheet():
             return spreadsheet
         except gspread.exceptions.SpreadsheetNotFound:
             log(f"Error: Spreadsheet '{SHEET_NAME}' not found.")
-            log("Please make sure the sheet exists and is shared with:")
-            log("kada-admin@kada-469004.iam.gserviceaccount.com")
+            # ...
             return None
     except Exception as e:
         log(f"Authentication Error: {e}")

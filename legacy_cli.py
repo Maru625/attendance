@@ -1,4 +1,4 @@
-import google_client
+import app.services.sheet_service as google_client
 
 def main():
     print("=== Kada Commute System ===")

@@ -52,7 +52,47 @@ git push -u origin main
 
 ## 사용법 (Usage)
 
-애플리케이션 실행:
-```bash
-uv run main.py
+## 프로젝트 구조 (Project Structure)
 ```
+root/
+├── app/
+│   ├── main.py              # FastAPI 서버 진입점
+│   ├── models.py            # 데이터 모델 (Request/Response)
+│   ├── services/
+│   │   └── sheet_service.py # 구글 스프레드시트 연동 로직
+│   └── static/              # 웹 프론트엔드 (HTML/CSS/JS)
+├── legacy_cli.py            # (구) CLI 실행 파일
+├── kada-admin.json          # 구글 서비스 계정 키 (비공개)
+└── pyproject.toml           # 프로젝트 의존성 관리
+```
+
+## 사용법 (Usage)
+
+### 1. 웹 애플리케이션 실행 (권장)
+새로운 웹 인터페이스를 통해 출퇴근을 기록하고, 기록을 수정/삭제할 수 있습니다.
+
+```bash
+# 서버 실행
+uv run python -m app.main
+```
+또는 개발 모드 (자동 재시작):
+```bash
+uv run uvicorn app.main:app --reload
+```
+
+서버가 실행되면 브라우저에서 아래 주소로 접속하세요:
+👉 **[http://localhost:8000/static/index.html](http://localhost:8000/static/index.html)**
+
+### 2. CLI 실행 (레거시)
+기존의 터미널 기반 인터페이스입니다.
+```bash
+uv run legacy_cli.py
+```
+
+## 주요 기능
+- **출/퇴근 기록**: 현재 시간 또는 직접 입력한 시간으로 기록.
+- **기록 관리 (웹 전용)**:
+    - **히스토리 조회**: 전체 출퇴근 기록 확인.
+    - **수정**: 연필 아이콘을 눌러 시간 수정.
+    - **삭제**: 휴지통 아이콘을 눌러 잘못된 기록 삭제.
+- **실시간 로그**: 웹 UI 하단 콘솔에서 서버 로그 확인 가능.
