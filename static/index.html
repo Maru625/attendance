@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kada Commute - Attendance System</title>
+    <link rel="icon" href="/static/favicon.ico">
+    <link rel="stylesheet" href="/static/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@300;400;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Login View -->
+        <div id="login-view" class="view active">
+            <div class="card login-card">
+                <h1>Kada Commute</h1>
+                <p>계정에 로그인하여 출퇴근을 기록하세요.</p>
+                <div class="input-group">
+                    <input type="text" id="employee-name" placeholder="이름을 입력하세요" />
+                    <button id="login-btn">입장하기</button>
+                </div>
+                <div id="login-error" class="error-msg"></div>
+            </div>
+        </div>
+
+        <!-- Dashboard View -->
+        <div id="dashboard-view" class="view">
+            <div class="header">
+                <div class="user-info">
+                    <h2 id="user-greeting">반갑습니다, OOO님</h2>
+                </div>
+                <button id="logout-btn" class="logout-btn">로그아웃</button>
+            </div>
+            
+            <div class="dashboard-content">
+                <div class="time-display">
+                    <h1 id="current-time">00:00:00</h1>
+                    <p id="current-date">YYYY년 MM월 DD일</p>
+                </div>
+                
+                <div class="controls-panel">
+                    <div class="time-control-group">
+                         <label class="switch">
+                            <input type="checkbox" id="manual-time-toggle">
+                            <span class="slider round"></span>
+                        </label>
+                        <span>시간 직접 입력</span>
+                    </div>
+                    <input type="time" id="manual-time-input" class="time-picker hidden">
+                    
+                    <button id="show-history-btn" class="secondary-btn">
+                        <span>📋 기록 관리</span>
+                    </button>
+                </div>
+
+                <div class="action-buttons">
+                    <button id="checkin-btn" class="action-btn checkin">
+                        <span class="icon">☀️</span>
+                        <span>출근하기</span>
+                    </button>
+                    <button id="checkout-btn" class="action-btn checkout">
+                        <span class="icon">🌙</span>
+                        <span>퇴근하기</span>
+                    </button>
+                </div>
+            </div>
+            
+            <div class="console-container">
+                <div class="console-header">System Console</div>
+                <div id="system-console" class="console-body">
+                    <div class="log-line system">Waiting for logs...</div>
+                </div>
+            </div>
+
+            <div id="action-message" class="toast"></div>
+        </div>
+
+        <!-- History Modal -->
+        <div id="history-modal" class="modal">
+            <div class="modal-content large">
+                <div class="modal-header">
+                    <h3>출퇴근 기록 관리</h3>
+                    <button class="close-btn" id="close-history">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div class="table-container">
+                        <table id="history-table">
+                            <thead>
+                                <tr>
+                                    <th>날짜</th>
+                                    <th>출근</th>
+                                    <th>퇴근</th>
+                                    <th>관리</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Records here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Edit Modal -->
+        <div id="edit-modal" class="modal">
+             <div class="modal-content">
+                <div class="modal-header">
+                    <h3>기록 수정</h3>
+                    <button class="close-btn" id="close-edit">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <p id="edit-date-display" class="edit-date-label">2024-01-01</p>
+                    <div class="radio-group">
+                        <label><input type="radio" name="edit-type" value="checkin" checked> 출근 시간</label>
+                        <label><input type="radio" name="edit-type" value="checkout"> 퇴근 시간</label>
+                    </div>
+                    <input type="time" id="edit-time-input" class="time-input-large" step="1">
+                    <div class="modal-actions">
+                        <button id="save-edit-btn" class="primary-btn">저장</button>
+                    </div>
+                </div>
+            </div>
+        </div>   
+    </div>
+    <script src="/static/app.js"></script>
+</body>
+</html>

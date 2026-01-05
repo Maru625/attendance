@@ -11,6 +11,17 @@ SCOPES = [
 # TODO: Replace with your actual Google Sheet name or URL
 SHEET_NAME = 'kada_attendance' 
 
+# Logging callback
+log_callback = print
+
+def set_log_callback(callback):
+    global log_callback
+    log_callback = callback
+
+def log(message):
+    if log_callback:
+        log_callback(message)
+
 def connect_to_spreadsheet():
     """Connects to Google Sheets using the service account and returns the Spreadsheet object."""
     try:
@@ -20,15 +31,15 @@ def connect_to_spreadsheet():
         # Open the spreadsheet
         try:
             spreadsheet = client.open(SHEET_NAME)
-            print(f"Successfully connected to spreadsheet: {SHEET_NAME}")
+            log(f"Successfully connected to spreadsheet: {SHEET_NAME}")
             return spreadsheet
         except gspread.exceptions.SpreadsheetNotFound:
-            print(f"Error: Spreadsheet '{SHEET_NAME}' not found.")
-            print("Please make sure the sheet exists and is shared with:")
-            print("kada-admin@kada-469004.iam.gserviceaccount.com")
+            log(f"Error: Spreadsheet '{SHEET_NAME}' not found.")
+            log("Please make sure the sheet exists and is shared with:")
+            log("kada-admin@kada-469004.iam.gserviceaccount.com")
             return None
     except Exception as e:
-        print(f"Authentication Error: {e}")
+        log(f"Authentication Error: {e}")
         return None
 
 def get_worksheet(spreadsheet, worksheet_name):
@@ -36,7 +47,7 @@ def get_worksheet(spreadsheet, worksheet_name):
     try:
         return spreadsheet.worksheet(worksheet_name)
     except gspread.exceptions.WorksheetNotFound:
-        print(f"Error: Worksheet '{worksheet_name}' not found.")
+        log(f"Error: Worksheet '{worksheet_name}' not found.")
         return None
 
 def read_data(spreadsheet, worksheet_name):
@@ -45,16 +56,16 @@ def read_data(spreadsheet, worksheet_name):
     if not sheet:
         return
     
-    print(f"\n--- Reading Data from {worksheet_name} ---")
+    log(f"\n--- Reading Data from {worksheet_name} ---")
     try:
         data = sheet.get_all_records()
         if not data:
-            print("Sheet is empty or has no headers.")
+            log("Sheet is empty or has no headers.")
         else:
             for i, row in enumerate(data, start=2): # 1 is header
-                print(f"Row {i}: {row}")
+                log(f"Row {i}: {row}")
     except Exception as e:
-        print(f"Error reading data: {e}")
+        log(f"Error reading data: {e}")
 
 def add_data(spreadsheet, worksheet_name, data_dict):
     """Adds a new row to the specified worksheet."""
@@ -62,11 +73,11 @@ def add_data(spreadsheet, worksheet_name, data_dict):
     if not sheet:
         return
 
-    print(f"\n--- Adding Data to {worksheet_name} ---")
+    log(f"\n--- Adding Data to {worksheet_name} ---")
     try:
         # Check if headers exist (simple check)
         if not sheet.row_values(1):
-            print("Warning: Sheet appears to be empty (no headers).")
+            log("Warning: Sheet appears to be empty (no headers).")
 
         # Prepare row data based on worksheet type
         # This is a simple implementation; ideally, we map keys to columns dynamically
@@ -79,7 +90,7 @@ def add_data(spreadsheet, worksheet_name, data_dict):
         
         headers = sheet.row_values(1)
         if not headers:
-             print("Error: Cannot add data to a sheet without headers.")
+             log("Error: Cannot add data to a sheet without headers.")
              return
 
         row = []
@@ -87,9 +98,9 @@ def add_data(spreadsheet, worksheet_name, data_dict):
             row.append(data_dict.get(header, ''))
         
         sheet.append_row(row, value_input_option='USER_ENTERED')
-        print(f"Added row: {row}")
+        log(f"Added row: {row}")
     except Exception as e:
-        print(f"Error adding data: {e}")
+        log(f"Error adding data: {e}")
 
 def find_employee(spreadsheet, name):
     """Finds an employee by name in the 'Employees' sheet."""
@@ -105,7 +116,7 @@ def find_employee(spreadsheet, name):
                 return record
         return None
     except Exception as e:
-        print(f"Error finding employee: {e}")
+        log(f"Error finding employee: {e}")
         return None
 
 import random
@@ -123,7 +134,7 @@ def check_in(spreadsheet, employee, specific_time=None):
     sheet = get_worksheet(spreadsheet, sheet_name)
     
     if not sheet:
-        print(f"이번 주차 시트 없음 ({sheet_name})")
+        log(f"이번 주차 시트 없음 ({sheet_name})")
         return False
 
     if specific_time:
@@ -151,7 +162,7 @@ def check_in(spreadsheet, employee, specific_time=None):
     }
     
     add_data(spreadsheet, sheet_name, data)
-    print(f"출근 처리가 완료되었습니다. 시간: {checkin_time_str}, 사유: -")
+    log(f"출근 처리가 완료되었습니다. 시간: {checkin_time_str}, 사유: -")
     return True
 
 def check_out(spreadsheet, employee, specific_time=None):
@@ -160,7 +171,7 @@ def check_out(spreadsheet, employee, specific_time=None):
     sheet = get_worksheet(spreadsheet, sheet_name)
     
     if not sheet:
-        print(f"이번 주차 시트 없음 ({sheet_name})")
+        log(f"이번 주차 시트 없음 ({sheet_name})")
         return False
 
     today_str = datetime.datetime.now().strftime("%Y-%m-%d")
@@ -169,7 +180,7 @@ def check_out(spreadsheet, employee, specific_time=None):
     # Get all values to find the row
     rows = sheet.get_all_values()
     if not rows:
-        print("시트가 비어있습니다.")
+        log("시트가 비어있습니다.")
         return False
 
     headers = rows[0]
@@ -179,7 +190,7 @@ def check_out(spreadsheet, employee, specific_time=None):
         checkout_idx = headers.index('checkout_time')
         reason_idx = headers.index('reason')
     except ValueError:
-        print("필수 컬럼(date, employee_id, checkout_time, reason)이 누락되었습니다.")
+        log("필수 컬럼(date, employee_id, checkout_time, reason)이 누락되었습니다.")
         return False
 
     target_row_idx = -1
@@ -194,7 +205,7 @@ def check_out(spreadsheet, employee, specific_time=None):
             break
     
     if target_row_idx == -1:
-        print("오늘 날짜의 출근 기록이 없습니다.")
+        log("오늘 날짜의 출근 기록이 없습니다.")
         return False
 
     if specific_time:
@@ -221,7 +232,7 @@ def check_out(spreadsheet, employee, specific_time=None):
     sheet.update(checkout_cell, [[checkout_time_str]], value_input_option='USER_ENTERED')
     sheet.update(reason_cell, [["-"]], value_input_option='USER_ENTERED')
     
-    print(f"퇴근 처리가 완료되었습니다. 시간: {checkout_time_str}, 사유: -")
+    log(f"퇴근 처리가 완료되었습니다. 시간: {checkout_time_str}, 사유: -")
     return True
 
 def get_sheet_name_from_date(date_obj):
@@ -264,7 +275,7 @@ def get_all_employee_records(spreadsheet, employee_id):
                 continue
                 
     except Exception as e:
-        print(f"Error retrieving all records: {e}")
+        log(f"Error retrieving all records: {e}")
         
     return records
 
@@ -272,12 +283,12 @@ def delete_record(spreadsheet, employee_id, date_str):
     """Deletes a record for the employee on a specific date."""
     sheet_name = get_sheet_name_from_date_str(date_str)
     if not sheet_name:
-        print("잘못된 날짜 형식입니다. (YYYY-MM-DD)")
+        log("잘못된 날짜 형식입니다. (YYYY-MM-DD)")
         return False
 
     sheet = get_worksheet(spreadsheet, sheet_name)
     if not sheet:
-        print(f"해당 날짜({date_str})가 포함된 주차의 기록이 없습니다.")
+        log(f"해당 날짜({date_str})가 포함된 주차의 기록이 없습니다.")
         return False
         
     emp_id_str = str(employee_id)
@@ -285,7 +296,7 @@ def delete_record(spreadsheet, employee_id, date_str):
     try:
         rows = sheet.get_all_values()
         if not rows:
-            print("시트가 비어있습니다.")
+            log("시트가 비어있습니다.")
             return False
             
         headers = rows[0]
@@ -293,7 +304,7 @@ def delete_record(spreadsheet, employee_id, date_str):
             date_idx = headers.index('date')
             id_idx = headers.index('employee_id')
         except ValueError:
-            print("필수 컬럼이 누락되었습니다.")
+            log("필수 컬럼이 누락되었습니다.")
             return False
             
         target_row_idx = -1
@@ -307,26 +318,26 @@ def delete_record(spreadsheet, employee_id, date_str):
         
         if target_row_idx != -1:
             sheet.delete_rows(target_row_idx)
-            print(f"{date_str} 기록이 삭제되었습니다.")
+            log(f"{date_str} 기록이 삭제되었습니다.")
             return True
         else:
-            print(f"{date_str}에 해당 직원의 기록을 찾을 수 없습니다.")
+            log(f"{date_str}에 해당 직원의 기록을 찾을 수 없습니다.")
             return False
             
     except Exception as e:
-        print(f"삭제 중 오류 발생: {e}")
+        log(f"삭제 중 오류 발생: {e}")
         return False
 
 def update_record(spreadsheet, employee_id, date_str, checkin=None, checkout=None):
     """Updates an attendance record for the employee on a specific date."""
     sheet_name = get_sheet_name_from_date_str(date_str)
     if not sheet_name:
-        print("잘못된 날짜 형식입니다. (YYYY-MM-DD)")
+        log("잘못된 날짜 형식입니다. (YYYY-MM-DD)")
         return False
 
     sheet = get_worksheet(spreadsheet, sheet_name)
     if not sheet:
-        # print(f"해당 날짜({date_str})가 포함된 주차의 기록이 없습니다.")
+        # log(f"해당 날짜({date_str})가 포함된 주차의 기록이 없습니다.")
         # Updating might fail if the sheet doesn't exist, which implies no record.
         return False
         
@@ -344,7 +355,7 @@ def update_record(spreadsheet, employee_id, date_str, checkin=None, checkout=Non
             checkin_idx = headers.index('checkin_time')
             checkout_idx = headers.index('checkout_time')
         except ValueError:
-            print("필수 컬럼이 누락되었습니다.")
+            log("필수 컬럼이 누락되었습니다.")
             return False
             
         target_row_idx = -1
@@ -356,7 +367,7 @@ def update_record(spreadsheet, employee_id, date_str, checkin=None, checkout=Non
                  break
         
         if target_row_idx == -1:
-            print(f"{date_str}에 해당 직원의 기록을 찾을 수 없습니다.")
+            log(f"{date_str}에 해당 직원의 기록을 찾을 수 없습니다.")
             return False
 
         # Helper to get cell address
@@ -366,17 +377,17 @@ def update_record(spreadsheet, employee_id, date_str, checkin=None, checkout=Non
         if checkin is not None:
             cell = get_cell_address(target_row_idx, checkin_idx)
             sheet.update(cell, [[checkin]], value_input_option='USER_ENTERED')
-            print(f"출근 시간이 '{checkin}'(으)로 수정되었습니다.")
+            log(f"출근 시간이 '{checkin}'(으)로 수정되었습니다.")
 
         if checkout is not None:
             cell = get_cell_address(target_row_idx, checkout_idx)
             sheet.update(cell, [[checkout]], value_input_option='USER_ENTERED')
-            print(f"퇴근 시간이 '{checkout}'(으)로 수정되었습니다.")
+            log(f"퇴근 시간이 '{checkout}'(으)로 수정되었습니다.")
             
         return True
 
     except Exception as e:
-        print(f"수정 중 오류 발생: {e}")
+        log(f"수정 중 오류 발생: {e}")
         return False
 
 if __name__ == "__main__":
