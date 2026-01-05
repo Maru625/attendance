@@ -113,9 +113,9 @@ import random
 def get_current_week_sheet_name():
     """Returns the sheet name for the current week in YYYY_WW format."""
     today = datetime.date.today()
-    year = today.year
+    year = today.isocalendar()[0]
     week = today.isocalendar()[1]
-    return f"{year}_{week}"
+    return f"{year}_{week:02d}"
 
 def check_in(spreadsheet, employee, specific_time=None):
     """Handles the check-in process."""
@@ -226,9 +226,9 @@ def check_out(spreadsheet, employee, specific_time=None):
 
 def get_sheet_name_from_date(date_obj):
     """Returns the sheet name for a given date in YYYY_WW format."""
-    year = date_obj.year
+    year = date_obj.isocalendar()[0]
     week = date_obj.isocalendar()[1]
-    return f"{year}_{week}"
+    return f"{year}_{week:02d}"
 
 def get_sheet_name_from_date_str(date_str):
     """Returns the sheet name for a given date string (YYYY-MM-DD)."""
