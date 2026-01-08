@@ -90,7 +90,7 @@ async def check_in(request: CheckInRequest):
         'id': request.employee_id
     }
     
-    success = sheet_service.check_in(spreadsheet, employee, specific_time=request.time)
+    success = sheet_service.check_in(spreadsheet, employee, specific_time=request.time, specific_date=request.date)
     if not success:
         raise HTTPException(status_code=400, detail="Check-in failed")
     
@@ -107,7 +107,7 @@ async def check_out(request: CheckOutRequest):
         'id': request.employee_id
     }
 
-    success = sheet_service.check_out(spreadsheet, employee, specific_time=request.time)
+    success = sheet_service.check_out(spreadsheet, employee, specific_time=request.time, specific_date=request.date)
     if not success:
         raise HTTPException(status_code=400, detail="Check-out failed (maybe no record for today?)")
     

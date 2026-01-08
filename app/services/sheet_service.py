@@ -134,9 +134,21 @@ def get_current_week_sheet_name():
     week = today.isocalendar()[1]
     return f"{year}_{week:02d}"
 
-def check_in(spreadsheet, employee, specific_time=None):
-    """Handles the check-in process."""
-    sheet_name = get_current_week_sheet_name()
+def check_in(spreadsheet, employee, specific_time=None, specific_date=None):
+    """Handles the check-in process. Supports past dates."""
+    if specific_date:
+        today_str = specific_date
+        # Determine sheet name based on the specific date
+        try:
+            date_obj = datetime.datetime.strptime(specific_date, "%Y-%m-%d").date()
+            sheet_name = get_sheet_name_from_date(date_obj)
+        except ValueError:
+            log("Invalid date format.")
+            return False
+    else:
+        today_str = datetime.datetime.now().strftime("%Y-%m-%d")
+        sheet_name = get_current_week_sheet_name()
+
     sheet = get_worksheet(spreadsheet, sheet_name)
     
     if not sheet:
@@ -158,7 +170,7 @@ def check_in(spreadsheet, employee, specific_time=None):
         checkin_dt = now.replace(hour=9, minute=random_minute, second=random_second)
         checkin_time_str = checkin_dt.strftime("%H:%M:%S")
     
-    today_str = datetime.datetime.now().strftime("%Y-%m-%d")
+    today_str = today_str # Use the determined date (today or specific_date)
     
     # Prepare data based on schema: 
     # ['date', 'name', 'location', 'checkin_time', 'checkout_time', 'employee_id', 'reason']
@@ -176,16 +188,28 @@ def check_in(spreadsheet, employee, specific_time=None):
     log(f"출근 처리가 완료되었습니다. 시간: {checkin_time_str}, 사유: -")
     return True
 
-def check_out(spreadsheet, employee, specific_time=None):
-    """Handles the check-out process."""
-    sheet_name = get_current_week_sheet_name()
+def check_out(spreadsheet, employee, specific_time=None, specific_date=None):
+    """Handles the check-out process. Supports past dates."""
+    if specific_date:
+        today_str = specific_date
+        # Determine sheet name based on the specific date
+        try:
+            date_obj = datetime.datetime.strptime(specific_date, "%Y-%m-%d").date()
+            sheet_name = get_sheet_name_from_date(date_obj)
+        except ValueError:
+            log("Invalid date format.")
+            return False
+    else:
+        today_str = datetime.datetime.now().strftime("%Y-%m-%d")
+        sheet_name = get_current_week_sheet_name()
+
     sheet = get_worksheet(spreadsheet, sheet_name)
     
     if not sheet:
         log(f"이번 주차 시트 없음 ({sheet_name})")
         return False
 
-    today_str = datetime.datetime.now().strftime("%Y-%m-%d")
+    today_str = today_str 
     emp_id = str(employee.get('id'))
 
     # Get all values to find the row
@@ -278,6 +302,9 @@ def get_all_employee_records(spreadsheet, employee_id):
         
         # Sort sheets to show recent data (reverse chronological)
         weekly_sheets.sort(key=lambda x: x.title, reverse=True)
+        
+        # Limit to recent 3 weeks to avoid API quota limits
+        weekly_sheets = weekly_sheets[:3]
 
         for sheet in weekly_sheets:
             try:
@@ -398,6 +425,14 @@ def update_record(spreadsheet, employee_id, date_str, checkin=None, checkout=Non
             cell = get_cell_address(target_row_idx, checkout_idx)
             sheet.update(cell, [[checkout]], value_input_option='USER_ENTERED')
             log(f"퇴근 시간이 '{checkout}'(으)로 수정되었습니다.")
+            
+            # Reset reason to '-' when checkout is updated
+            try:
+                reason_idx = headers.index('reason')
+                reason_cell = get_cell_address(target_row_idx, reason_idx)
+                sheet.update(reason_cell, [["-"]], value_input_option='USER_ENTERED')
+            except ValueError:
+                pass # reason column might not exist, ignore
             
         return True
 

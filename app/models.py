@@ -9,11 +9,13 @@ class CheckInRequest(BaseModel):
     location: str
     employee_id: str
     time: Optional[str] = None # Optional manual time
+    date: Optional[str] = None # Optional past date (YYYY-MM-DD)
 
 class CheckOutRequest(BaseModel):
     name: str
     employee_id: str
     time: Optional[str] = None # Optional manual time
+    date: Optional[str] = None # Optional past date (YYYY-MM-DD)
 
 class UpdateRecordRequest(BaseModel):
     employee_id: str

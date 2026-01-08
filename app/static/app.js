@@ -144,7 +144,8 @@ async function handleCheckIn() {
                 name: currentUser.name,
                 location: currentUser.location,
                 employee_id: currentUser.id,
-                time: manualTime ? manualTime : null // Send HH:MM, backend adds random seconds
+                time: manualTime ? manualTime : null, // Send HH:MM, backend adds random seconds
+                date: isManual ? document.getElementById('manual-date-input').value : null
             })
         });
 
@@ -181,7 +182,8 @@ async function handleCheckOut() {
             body: JSON.stringify({
                 name: currentUser.name,
                 employee_id: currentUser.id,
-                time: manualTime ? manualTime : null
+                time: manualTime ? manualTime : null,
+                date: isManual ? document.getElementById('manual-date-input').value : null
             })
         });
 
@@ -289,7 +291,7 @@ async function saveEdit() {
                 employee_id: currentUser.id,
                 date: currentEditRecord.date,
                 field: type,
-                value: timeVal + ":00"
+                value: timeVal.length === 5 ? timeVal + ":00" : timeVal // Only append :00 if HH:MM
             })
         });
         
@@ -306,11 +308,22 @@ async function saveEdit() {
 }
 
 // UI Event Listeners
+// UI Event Listeners
 manualTimeToggle.addEventListener('change', (e) => {
-    if (e.target.checked) {
+    const isManual = e.target.checked;
+    const manualDateInput = document.getElementById('manual-date-input');
+    
+    if (isManual) {
         manualTimeInput.classList.remove('hidden');
+        manualDateInput.classList.remove('hidden');
+        // Set default date to today
+        const today = new Date().toISOString().split('T')[0];
+        manualDateInput.value = today;
     } else {
         manualTimeInput.classList.add('hidden');
+        manualDateInput.classList.add('hidden');
+        manualTimeInput.value = '';
+        manualDateInput.value = '';
     }
 });
 
